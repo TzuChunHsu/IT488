@@ -48,8 +48,6 @@ function take_survey() {
   local username="$1"
   local answer_file="${username}_answers_file.csv"
 
-  # 若之前有檔案，可以選擇覆蓋或每次都重來
-  # 這裡直接覆蓋寫入
   > "$answer_file"
 
   echo "============================="
@@ -76,6 +74,44 @@ function take_survey() {
   echo "Survey complete! Answers saved to $answer_file"
   echo "Press any key to continue..."
   read -n 1
+}
+
+function process_question_block() {
+ 
+  local -n block="$1"   
+  local answer_file="$2"
+
+
+  for line in "${block[@]}"; do
+    echo "$line"
+  done
+
+
+  local ans
+  while true; do
+    read -p "Please choose (a/b/c/d): " ans
+    ans=$(echo "$ans" | tr '[:upper:]' '[:lower:]')  
+    if [[ "$ans" =~ ^[abcd]$ ]]; then
+      break
+    else
+      echo "Invalid input. Please enter a, b, c, or d."
+    fi
+  done
+
+
+  for line in "${block[@]}"; do
+    local first_char="${line%%.*}"  
+    local trimmed="${first_char//[[:space:]]/}" #
+
+    if [ "$trimmed" == "$ans" ]; then
+      echo "${line} -> YOUR ANSWER" >> "$answer_file"
+    else
+      echo "$line" >> "$answer_file"
+    fi
+  done
+
+  echo "" >> "$answer_file"  
+  echo
 }
 
 function view_survey() {
