@@ -45,19 +45,16 @@ function login() {
 }
 
 process_question_block() {
-  # 最後一個參數視為「輸出答案的檔名」，其餘參數是問題內容
-  local output_file="${@: -1}"          # 最後一個參數
-  local -a block=("${@:1:$(($#-1))}")   # 前面 (N-1) 個參數是問題
+  local output_file="${@: -1}"          
+  local -a block=("${@:1:$(($#-1))}")  
 
   for question in "${block[@]}"; do
     echo "$question"
-    # 不斷要求使用者輸入，直到輸入符合 [abcd] 為止
     while true; do
       read -p "Please enter a, b, c, or d: " ans
       ans="${ans,,}"  # 轉小寫 (Bash 4+)
 
       if [[ "$ans" =~ ^[a-d]$ ]]; then
-        # 寫入答案檔
         echo "Answer: $ans" >> "$output_file"
         break
       else
