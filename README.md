@@ -45,18 +45,37 @@ function login() {
 }
 
 function take_survey() {
-    local username="$1"
-    local answer_file="${username}_answers.csv"
-    echo "Fruit Survey: Taking Survey"
-    rm -f "$answer_file"
-    
-    while IFS= read -r line; do
-        echo "$line"
-        read -p "Your answer: " answer
-        echo "$line -> YOUR ANSWER: $answer" >> "$answer_file"
-    done < "$QUESTION_FILE"
-    
-    echo "Survey completed!"
+  local username="$1"
+  local answer_file="${username}_answers_file.csv"
+
+  # 若之前有檔案，可以選擇覆蓋或每次都重來
+  # 這裡直接覆蓋寫入
+  > "$answer_file"
+
+  echo "============================="
+  echo "         Take Survey"
+  echo "============================="
+  echo "Answer the following questions (type a/b/c/d)."
+
+  local question_block=()
+  local IFS=''  
+  while read -r line || [[ -n "$line" ]]; do
+ 
+    if [[ -z "$line" ]]; then
+      process_question_block question_block[@] "$answer_file"
+      question_block=()
+    else
+      question_block+=("$line")
+    fi
+  done < "$QUESTION_FILE"
+
+  if [ ${#question_block[@]} -gt 0 ]; then
+    process_question_block question_block[@] "$answer_file"
+  fi
+
+  echo "Survey complete! Answers saved to $answer_file"
+  echo "Press any key to continue..."
+  read -n 1
 }
 
 function view_survey() {
