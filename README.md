@@ -44,74 +44,57 @@ function login() {
     fi
 }
 
-function take_survey() {
-  local username="$1"
-  local answer_file="${username}_answers_file.csv"
+process_question_block() {
+  # 最後一個參數視為「輸出答案的檔名」，其餘參數是問題內容
+  local output_file="${@: -1}"          # 最後一個參數
+  local -a block=("${@:1:$(($#-1))}")   # 前面 (N-1) 個參數是問題
 
-  > "$answer_file"
+  for question in "${block[@]}"; do
+    echo "$question"
+    # 不斷要求使用者輸入，直到輸入符合 [abcd] 為止
+    while true; do
+      read -p "Please enter a, b, c, or d: " ans
+      ans="${ans,,}"  # 轉小寫 (Bash 4+)
 
-  echo "============================="
+      if [[ "$ans" =~ ^[a-d]$ ]]; then
+        # 寫入答案檔
+        echo "Answer: $ans" >> "$output_file"
+        break
+      else
+        echo "Invalid input. Please enter a, b, c, or d."
+      fi
+    done
+  done
+}
+
+
+take_survey() {
+  echo "==============================="
   echo "         Take Survey"
-  echo "============================="
+  echo "==============================="
   echo "Answer the following questions (type a/b/c/d)."
 
   local question_block=()
-  local IFS=''  
-  while read -r line || [[ -n "$line" ]]; do
- 
+  local IFS='' 
+
+  while read -r line; do
     if [[ -z "$line" ]]; then
-      process_question_block question_block[@] "$answer_file"
-      question_block=()
+      if [ ${#question_block[@]} -gt 0 ]; then
+        process_question_block "${question_block[@]}" "$answer_file"
+        question_block=()
+      fi
     else
       question_block+=("$line")
     fi
   done < "$QUESTION_FILE"
 
   if [ ${#question_block[@]} -gt 0 ]; then
-    process_question_block question_block[@] "$answer_file"
+    process_question_block "${question_block[@]}" "$answer_file"
   fi
 
   echo "Survey complete! Answers saved to $answer_file"
   echo "Press any key to continue..."
   read -n 1
-}
-
-function process_question_block() {
- 
-  local -n block="$1"   
-  local answer_file="$2"
-
-
-  for line in "${block[@]}"; do
-    echo "$line"
-  done
-
-
-  local ans
-  while true; do
-    read -p "Please choose (a/b/c/d): " ans
-    ans=$(echo "$ans" | tr '[:upper:]' '[:lower:]')  
-    if [[ "$ans" =~ ^[abcd]$ ]]; then
-      break
-    else
-      echo "Invalid input. Please enter a, b, c, or d."
-    fi
-  done
-
-
-  for line in "${block[@]}"; do
-    local first_char="${line%%.*}"  
-    local trimmed="${first_char//[[:space:]]/}" #
-
-    if [ "$trimmed" == "$ans" ]; then
-      echo "${line} -> YOUR ANSWER" >> "$answer_file"
-    else
-      echo "$line" >> "$answer_file"
-    fi
-  done
-
-  echo "" >> "$answer_file"  
-  echo
 }
 
 function view_survey() {
