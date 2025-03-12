@@ -51,20 +51,26 @@ process_question_block() {
     for question in "${block[@]}"; do
         echo "$question"
         local options=()
+
         while read -r option; do
             [[ -z "$option" ]] && break
-            options+=("$option") 
+            options+=("$option")  
         done
 
         while true; do
             echo "Please enter a, b, c, or d: "
             read ans < /dev/tty
-            if [[ "$ans" =~ ^[a-d]$ ]]; then
+            if [[ "$ans" == "a" || "$ans" == "b" || "$ans" == "c" || "$ans" == "d" ]]; then
                 echo "$question" >> "$answer_file"
 
-               
                 for ((i=0; i<${#options[@]}; i++)); do
-                    if [[ $i -eq 0 && "$ans" == "a" ]] || [[ $i -eq 1 && "$ans" == "b" ]] || [[ $i -eq 2 && "$ans" == "c" ]] || [[ $i -eq 3 && "$ans" == "d" ]]; then
+                    if [[ "$ans" == "a" && $i -eq 0 ]]; then
+                        echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file"
+                    elif [[ "$ans" == "b" && $i -eq 1 ]]; then
+                        echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file"
+                    elif [[ "$ans" == "c" && $i -eq 2 ]]; then
+                        echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file"
+                    elif [[ "$ans" == "d" && $i -eq 3 ]]; then
                         echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file"
                     else
                         echo "${options[$i]}" >> "$answer_file"
@@ -78,6 +84,7 @@ process_question_block() {
             fi
         done
     done
+}
 
 
 take_survey() {
