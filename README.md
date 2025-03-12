@@ -176,5 +176,53 @@ main_menu
 5. Which one of these is a vegetable?\na. Carrot\nb. Banana\nc. Potato\n\nd. Onion
 
 
+process_question_block() {
+    local answer_file="${username}_answers.csv"
+    local -a block=("${@:1}") 
+    local question_number=1
+
+    for question in "${block[@]}"; do
+        echo "$question_number. $question" >> "$answer_file"
+        echo "$question_number. $question"
+
+        local options=()
+        local option_labels=("a" "b" "c" "d")
+        
+        for label in "${option_labels[@]}"; do
+            read -r option
+            [[ -z "$option" ]] && break
+            options+=("$option")
+        done
+
+        for i in "${!options[@]}"; do
+            echo "    ${option_labels[$i]}. ${options[$i]}"
+        done
+
+        local ans
+        while true; do
+            echo -n "Please enter a, b, c, or d: "
+            read -r ans < /dev/tty
+
+            if [[ "$ans" =~ ^[abcd]$ ]]; then
+                break
+            else
+                echo "Invalid input. Please enter a, b, c, or d."
+            fi
+        done
+
+        for i in "${!options[@]}"; do
+            if [[ "$ans" == "${option_labels[$i]}" ]]; then
+                echo "    ${option_labels[$i]}. ${options[$i]} -> YOUR ANSWER" >> "$answer_file"
+            else
+                echo "    ${option_labels[$i]}. ${options[$i]}" >> "$answer_file"
+            fi
+        done
+
+        echo "" >> "$answer_file"
+        ((question_number++))
+    done
+}
+
+
 
 
