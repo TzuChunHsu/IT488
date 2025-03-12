@@ -218,5 +218,57 @@ process_question_block() {
 }
 
 
+-------------------------------------------------------------------------------------------------------
+
+function take_survey() {
+  clear
+  echo "Fruit Survey: ${CURRENT_USER}'s Survey"
+  echo
+
+  : > "$CURRENT_USER_ANSWER_FILE"
+
+  local questionCount=0
+
+  while IFS= read -r line
+  do
+    ((questionCount++))
+
+    local formattedQuestion
+    formattedQuestion="$(echo -e "$line")"
+
+    clear
+    echo "Fruit Survey: ${CURRENT_USER}'s Survey"
+    echo
+    echo "$formattedQuestion"
+    echo
+
+    local answer=""
+    while true; do
+      read -p "Please choose your option: " answer
+      answer="${answer,,}"
+      if [[ "$answer" =~ ^[abcd]$ ]]; then
+        break
+      else
+        echo "Invalid response. Please enter a, b, c, or d."
+      fi
+    done
+
+    local answeredQuestion=""
+    case "$answer" in
+      a) answeredQuestion="$(echo "$formattedQuestion" | sed 's/a\. \(.*\)/a. \1 -> YOUR ANSWER/')";;
+      b) answeredQuestion="$(echo "$formattedQuestion" | sed 's/b\. \(.*\)/b. \1 -> YOUR ANSWER/')";;
+      c) answeredQuestion="$(echo "$formattedQuestion" | sed 's/c\. \(.*\)/c. \1 -> YOUR ANSWER/')";;
+      d) answeredQuestion="$(echo "$formattedQuestion" | sed 's/d\. \(.*\)/d. \1 -> YOUR ANSWER/')";;
+    esac
+
+    # 把最終(含答案)的題目寫入目前使用者回答檔
+    echo "$answeredQuestion" >> "$CURRENT_USER_ANSWER_FILE"
+  done < "$QUESTION_FILE"
+
+  echo
+  echo "Survey complete."
+  echo "Please hit any key to continue."
+  read -n 1
+}
 
 
