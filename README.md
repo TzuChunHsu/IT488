@@ -271,4 +271,5 @@ function take_survey() {
   read -n 1
 }
 
+answeredQuestion="$(echo "$line" | sed ':a;N;$!ba;s/\(a\. [^\n]*\)/\1 -> YOUR ANSWER/')"
 
