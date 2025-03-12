@@ -56,6 +56,15 @@ process_question_block() {
 
       if [[ "$ans" =~ ^[a-d]$ ]]; then
         echo "Answer: $ans" >> "$output_file"
+        
+        for i in "${!options[@]}"; do
+                    case "$ans" in
+                        a) [[ $i -eq 0 ]] && echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file" || echo "${options[$i]}" >> "$answer_file";;
+                        b) [[ $i -eq 1 ]] && echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file" || echo "${options[$i]}" >> "$answer_file";;
+                        c) [[ $i -eq 2 ]] && echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file" || echo "${options[$i]}" >> "$answer_file";;
+                        d) [[ $i -eq 3 ]] && echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file" || echo "${options[$i]}" >> "$answer_file";;
+                    esac
+                done
         break
       else
         echo "Invalid input. Please enter a, b, c, or d."
