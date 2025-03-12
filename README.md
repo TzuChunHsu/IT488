@@ -178,8 +178,9 @@ main_menu
 
 process_question_block() {
     local answer_file="${username}_answers.csv"
-    local -a block=("${@:1}") 
+    local -a block=("${@:1}")  # 讀取問題區塊
     local question_number=1
+    > "$answer_file"
 
     for question in "${block[@]}"; do
         echo "$question_number. $question" >> "$answer_file"
@@ -187,7 +188,7 @@ process_question_block() {
 
         local options=()
         local option_labels=("a" "b" "c" "d")
-        
+
         for label in "${option_labels[@]}"; do
             read -r option
             [[ -z "$option" ]] && break
