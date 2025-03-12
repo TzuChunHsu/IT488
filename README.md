@@ -45,33 +45,39 @@ function login() {
 }
 
 process_question_block() {
-  local output_file="${@: -1}"          
-  local -a block=("${@:1:$(($#-1))}")  
+    local answer_file="${username}_answers.csv"
+    local -a block=("${@:1:$(($#-1))}")
 
-  for question in "${block[@]}"; do
-    echo "$question"
-    while true; do
-      read -p "Please enter a, b, c, or d: " ans
-      ans="${ans,,}"  # 轉小寫 (Bash 4+)
+    for question in "${block[@]}"; do
+        echo "$question"
+        local options=()
+        while read -r option; do
+            [[ -z "$option" ]] && break
+            options+=("$option") 
+        done
 
-      if [[ "$ans" =~ ^[a-d]$ ]]; then
-        echo "Answer: $ans" >> "$output_file"
-        
-        for i in "${!options[@]}"; do
-                    case "$ans" in
-                        a) [[ $i -eq 0 ]] && echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file" || echo "${options[$i]}" >> "$answer_file";;
-                        b) [[ $i -eq 1 ]] && echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file" || echo "${options[$i]}" >> "$answer_file";;
-                        c) [[ $i -eq 2 ]] && echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file" || echo "${options[$i]}" >> "$answer_file";;
-                        d) [[ $i -eq 3 ]] && echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file" || echo "${options[$i]}" >> "$answer_file";;
-                    esac
+        while true; do
+            echo "Please enter a, b, c, or d: "
+            read ans < /dev/tty
+            if [[ "$ans" =~ ^[a-d]$ ]]; then
+                echo "$question" >> "$answer_file"
+
+               
+                for ((i=0; i<${#options[@]}; i++)); do
+                    if [[ $i -eq 0 && "$ans" == "a" ]] || [[ $i -eq 1 && "$ans" == "b" ]] || [[ $i -eq 2 && "$ans" == "c" ]] || [[ $i -eq 3 && "$ans" == "d" ]]; then
+                        echo "${options[$i]} -> YOUR ANSWER" >> "$answer_file"
+                    else
+                        echo "${options[$i]}" >> "$answer_file"
+                    fi
                 done
-        break
-      else
-        echo "Invalid input. Please enter a, b, c, or d."
-      fi
+
+                echo "" >> "$answer_file" 
+                break
+            else
+                echo "Invalid input. Please enter a, b, c, or d."
+            fi
+        done
     done
-  done
-}
 
 
 take_survey() {
