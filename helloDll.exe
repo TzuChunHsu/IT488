@@ -1,0 +1,37 @@
+#include <windows.h>
+#include <shlobj.h>   // For SHGetFolderPathW
+#include <fstream>
+#include <string>
+
+// Entry point for a Windows application using Unicode.
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
+{
+    // Display a message box with "Hello DLL"
+    MessageBoxW(NULL, L"Hello DLL", L"Hello DLL", MB_OK | MB_ICONINFORMATION);
+
+    // Get the path to the user's desktop.
+    WCHAR desktopPath[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0, desktopPath)))
+    {
+        // Build the full file path for "Hello DLL.txt" on the desktop.
+        std::wstring filePath = std::wstring(desktopPath) + L"\\Hello DLL.txt";
+
+        // Create and open the text file for writing.
+        std::wofstream file(filePath);
+        if (file.is_open())
+        {
+            file << L"Hello DLL";
+            file.close();
+        }
+        else
+        {
+            MessageBoxW(NULL, L"Failed to create text file on desktop", L"Error", MB_OK | MB_ICONERROR);
+        }
+    }
+    else
+    {
+        MessageBoxW(NULL, L"Failed to get desktop path", L"Error", MB_OK | MB_ICONERROR);
+    }
+
+    return 0;
+}
