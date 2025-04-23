@@ -36,8 +36,8 @@ Implements the core detection logic:
 
 ## How to Use
 
-1. Unzip or clone the repository.
-2. **Option A:** Run the precompiled `Release/FinalAdvancedDetector.exe` (requires Windows 7+ x64).  
+1. Open the Release file.
+2. Run the precompiled `Release/FinalAdvancedDetector.exe` (requires Windows 7+ x64).  
 3. Click **Scan All** to scan every running process, or enter a PID and click **Scan PID**.
 4. Use the dropdown filter to view only `[DLL INJECTION]`, `[SUSPICIOUS THREAD]`, `[WARNING]`, `[MANUAL MAP]`, or `[ALERT]` entries.
 ---
